@@ -96,7 +96,7 @@ class ApiRepo {
 
       const accountCreationResponse = await repo.datasource.createUser(user);
       // console.log(accountCreationResponse, user);
-      const emailVerificationLink = `${process.env.BASE_URL}/api/v1/user/verify-email?userId=${accountCreationResponse.userId}&verificationCode=${user.emailVerificationToken}`;
+      const emailVerificationLink = `${process.env.BASE_URL}/api/v1/user/verify-email?userId=${accountCreationResponse.uuid}&verificationCode=${user.emailVerificationToken}`;
 
       await sendEmail({
         senderEmail: 'admin@twittee.com',

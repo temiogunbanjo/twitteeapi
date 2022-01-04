@@ -13,15 +13,21 @@ import { sendErrorResponse } from "../../utils/sendResponses";
 class ValidatorMiddleWare {
   static validateSignUp = [
     body("email", "please enter a valid email")
+      .exists()
+      .withMessage('email parameter required')
       .trim()
       .normalizeEmail()
       .isEmail(),
     body("password")
+      .exists()
+      .withMessage('password parameter required')
       .trim()
       .escape()
       .isLength({ min: 8 })
       .withMessage("passwords length must be between 8 to 24"),
     body("confirmPassword")
+      .exists()
+      .withMessage('confirmPassword parameter required')
       .trim()
       .escape()
       .custom((value, { req }) => value === req.body.password)

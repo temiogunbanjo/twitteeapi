@@ -16,12 +16,18 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger.json');
 
 const app = express();
+// add stream option to morgan
+app.use(morgan('combined', { stream: wiston.stream }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 // CORS allow middleware
 app.use((req, res, next) => {
   const corsWhitelist = [
     'http://localhost:3000',
-    'http://localhost:8000'
+    'http://localhost:8000',
+    'https://twitteehome.netlify.app'
   ];
   if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
     res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -30,12 +36,6 @@ app.use((req, res, next) => {
 
   next();
 });
-// add stream option to morgan
-app.use(morgan('combined', { stream: wiston.stream }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/v1', indexRouter);

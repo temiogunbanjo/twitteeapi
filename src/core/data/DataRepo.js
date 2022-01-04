@@ -45,10 +45,10 @@ class DataRepo {
   async fetchOneUser(searchParameter) {
     return User.findOne({
       where: {
-        [Op.or]: [{ email: searchParameter }, { userId: searchParameter }],
+        [Op.or]: [{ email: searchParameter }, { uuid: searchParameter }],
       },
       attributes: {
-        exclude: ['id', 'password'],
+        exclude: ['password'],
       },
     });
   }
@@ -72,7 +72,7 @@ class DataRepo {
           { phone: { [Op.like]: `%${filters.search}%` } },
           { firstname: { [Op.like]: `%${filters.search}%` } },
           { lastname: { [Op.like]: `%${filters.search}%` } },
-          { userId: { [Op.like]: `%${filters.search}%` } },
+          { uuid: { [Op.like]: `%${filters.search}%` } },
         ],
       };
 
@@ -113,7 +113,7 @@ class DataRepo {
 
     return User.findAll({
       where: SEQUELIZE_QUERY_CONDITIONS,
-      attributes: { exclude: ['id', 'password', 'emailVerificationToken'] },
+      attributes: { exclude: ['password', 'emailVerificationToken'] },
       // filters.orders comes in this format => ['field:ASC', 'field:DESC']
       order: filters.order.map((fieldAndOrderPair) => fieldAndOrderPair.split(':')),
       limit: limit && typeof limit === 'number' && !Number.isNaN(limit) ? limit : undefined,
@@ -128,7 +128,7 @@ class DataRepo {
    */
   async updateUser(userId, updateValues) {
     return User.update(updateValues, {
-      where: { userId },
+      where: { uuid: userId },
       returning: true,
     });
   }
@@ -148,7 +148,7 @@ class DataRepo {
    */
   async updatePost(userId, postId, updates) {
     return Post.update(updates, {
-      where: { userId, postId },
+      where: { uuiduserId, postId },
       returning: true,
     });
   }
