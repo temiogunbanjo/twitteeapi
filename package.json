@@ -1,0 +1,80 @@
+{
+  "name": "lotteryapi",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "cross-env NODE_ENV=test npm run db:migrate:test && nyc mocha 'test/**/*.js' --recursive --timeout 60000 --exit",
+    "dev": "nodemon --exec npx babel-node src/bin/www.js",
+    "start": "npm run build && pm2 start build/bin/www.js -n 'lottery-api' --update-env",
+    "production": "npm run build && pm2 reload build/bin/www.js -n 'lottery-api' --update-env",
+    "generate-docs": "jsdoc -c conf.json",
+    "build": "babel src --out-dir build",
+    "db:migrate": "npx sequelize db:migrate",
+    "db:migrate:test": "npx sequelize db:migrate --env test",
+    "db:seed:all:test": "./node_modules/.bin/sequelize db:seed:all --env test",
+    "db:migrate:undo": "npx sequelize db:migrate:undo:all",
+    "db:seed:all": "./node_modules/.bin/sequelize db:seed:all",
+    "db:generate:model": "npx sequelize model:generate",
+    "db:seed:undo": "npx sequelize db:seed:undo",
+    "db:create:test": "cross-env NODE_ENV=test npx sequelize-cli db:create",
+    "coverage": "cross-env NODE_ENV=test nyc npm run test && nyc report --reporter=lcov --reporter=text-lcov --exit"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "app-root-path": "^3.0.0",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "express-validator": "^6.11.1",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "~1.9.1",
+    "mysql2": "^2.3.3",
+    "nodemailer": "^6.7.2",
+    "pg": "^8.5.1",
+    "sequelize": "^6.12.0",
+    "sequelize-cli": "^5.5.0",
+    "swagger-ui-express": "^4.1.5",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "babel-eslint": "^10.0.3",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "cross-env": "^5.2.0",
+    "eslint": "^7.26.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.2",
+    "jsdoc": "^3.6.7",
+    "mocha": "^8.0.0",
+    "nodemon": "^2.0.15",
+    "nyc": "^15.1.0",
+    "sequelize-cli": "^6.2.0",
+    "sinon": "^9.2.1"
+  },
+  "nyc": {
+    "exclude": [
+      "src/models/index.js",
+      "src/models",
+      "tests",
+      "node_modules"
+    ],
+    "require": [
+      "@babel/register"
+    ],
+    "sourceMap": false,
+    "cache": false,
+    "report-dir": "tests/report"
+  }
+}

@@ -1,0 +1,633 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Twittee API",
+    "description": "Test Api document",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:8000",
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "General APIs",
+      "description": "API for creating, editing, listing and deleting user records"
+    },
+    {
+      "name": "User Authentication",
+      "description": "API for creating, editing, listing and deleting user records"
+    },
+    {
+      "name": "User Account",
+      "description": "API for creating, editing, listing and deleting user records"
+    },
+    {
+      "name": "Admin User",
+      "description": "API for creating, editing, listing and deleting user records"
+    },
+    {
+      "name": "Wallet & Transactions",
+      "description": "API for creating, editing, listing and deleting user records"
+    }
+  ],
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/health-check": {
+      "get": {
+        "summary": "Gets status of server",
+        "tags": ["General APIs"],
+        "responses": {
+          "200": {
+            "description": "Server is running"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "summary": "Create a new user/player",
+        "tags": ["User Authentication"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User object that will be supplied",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "User login endpoint",
+        "tags": ["User Authentication"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User object that will be supplied",
+            "required": true,
+            "schema": {
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/auth/validate-token": {
+      "get": {
+        "summary": "user jwt token validation endpoint",
+        "tags": ["General APIs"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "description": "token string to validate",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/user/{userId}": {
+      "post": {
+        "summary": "Gets a single user",
+        "tags": ["User Account"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "description": "Request object that will be supplied",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verified successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/user/list-users": {
+      "get": {
+        "summary": "Get a list of all users. Can apply filters to results",
+        "tags": ["User Account"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "pagination parameter",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "number of results displayed per page",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "description": "search player's (userId, name, username)",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description": "status parameter",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "description": "filter results by user roles.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/user/send-verification-email": {
+      "post": {
+        "summary": "Send email verification to user",
+        "tags": ["User Account"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Request object that will be supplied",
+            "required": true,
+            "schema": {
+              "required": ["userId"],
+              "properties": {
+                "userId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email sent successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/user/verify-email": {
+      "get": {
+        "summary": "Marks a users email as verified when called",
+        "tags": ["User Account"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "description": "Unique user uuid string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "verificationCode",
+            "description": "Automatically generated verification code string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verified successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/user/{userId}/update-profile": {
+      "put": {
+        "summary": "Update user profile details",
+        "tags": ["User Account"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "description": "Unique user uuid string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Request object with fields to be updated",
+            "required": true,
+            "schema": {
+              "properties": {
+                "phone": {
+                  "type": "string"
+                },
+                "firstname": {
+                  "type": "string"
+                },
+                "lastname": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/transactions/create-transaction": {
+      "post": {
+        "summary": "Create a new transaction",
+        "tags": ["Wallet & Transactions"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Request object with fields to be updated",
+            "required": true,
+            "schema": {
+              "required": ["userId", "type", "amount", "referenceId"],
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "narration": {
+                  "type": "string"
+                },
+                "referenceId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/transactions/list-transactions": {
+      "get": {
+        "summary": "Get a list of all transactions. Can also be flitered",
+        "tags": ["Wallet & Transactions"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "pagination parameter",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "number of results displayed per page",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "transactionType",
+            "description": "number of results displayed per page",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "description": "search with transaction's (userId, transactionId)",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description": "status parameter",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/transactions/{transactionId}": {
+      "post": {
+        "summary": "Fetch a single transaction",
+        "tags": ["Wallet & Transactions"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "transactionId",
+            "description": "uuid of the transaction to fetch",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Request object with fields to be updated",
+            "required": true,
+            "schema": {
+              "required": ["userId", "type", "amount", "referenceId"],
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "narration": {
+                  "type": "string"
+                },
+                "referenceId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fetched Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/transactions/export": {
+      "get": {
+        "summary": "Export all transactions as CSV",
+        "tags": ["Wallet & Transactions"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startDate",
+            "description": "start date",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "description": "end date",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exported Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/transactions/{userId}/wallet-history": {
+      "get": {
+        "summary": "Get a list of user wallet transactions",
+        "tags": ["Wallet & Transactions"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "description": "user uuid string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "pagination parameter",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "number of results displayed per page",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "transactionType",
+            "description": "number of results displayed per page",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "description": "search with transaction's (userId, transactionId)",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description": "status parameter",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/transactions/{userId}/wallet-history/{transactionId}": {
+      "post": {
+        "summary": "Get details of a single transaction in wallet history",
+        "tags": ["Wallet & Transactions"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "description": "Unique user uuid string",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "transactionId",
+            "description": "Unique transaction uuid string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Request object with fields to be updated",
+            "required": true,
+            "schema": {
+              "required": ["userId"],
+              "properties": {
+                "userId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/transactions/{userId}/wallet-history/export": {
+      "get": {
+        "summary": "Export wallet history as CSV",
+        "tags": ["Wallet & Transactions"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "description": "Unique user uuid string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "startDate",
+            "description": "Unique transaction uuid string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "description": "Unique transaction uuid string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "required": ["email", "password", "confirmPassword"],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "confirmPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "Admin": {
+      "required": ["firstname", "lastname", "email", "role", "password", "confirmPassword"],
+      "properties": {
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "confirmPassword": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
