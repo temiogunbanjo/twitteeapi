@@ -2,7 +2,7 @@
 // import db into this repo
 
 import { Op } from 'sequelize';
-import { User, Post } from '../../../models';
+import { User, Post, Comment } from '../../../models';
 
 /**
  * @class
@@ -134,11 +134,11 @@ class DataRepo {
   }
 
   /**
-   * @param {*} post
+   * @param {*} twit
    */
-  async createPost(post) {
+  async createTwit(twit) {
     // console.log(transaction);
-    return Post.create(post);
+    return Post.create(twit);
   }
 
   /**
@@ -146,9 +146,9 @@ class DataRepo {
    * @param {*} postId
    * @param {*} updates
    */
-  async updatePost(userId, postId, updates) {
+  async updateTwit(userId, postId, updates) {
     return Post.update(updates, {
-      where: { uuiduserId, postId },
+      where: { userId, uuid: postId },
       returning: true,
     });
   }
@@ -157,28 +157,27 @@ class DataRepo {
    * @param {*} postId
    * @returns Promise
    */
-  async fetchSinglePost(postId) {
+  async fetchSingleTwit(postId) {
     return Post.findOne({
-      where: { postId },
+      where: { uuid: postId },
       attributes: {
-        exclude: ['relationType', 'id', 'updatedAt'],
+        exclude: ['updatedAt'],
       },
+      include: [
+        {
+          model: Comment,
+          required: false,
+        }
+      ]
     });
   }
 
   /**
    * @param {*} filters
-   * @returns SequelizeModel
+   * @returns Promise
    */
-  createQueryWithPostFilters(filters) {
-    if (typeof filters.status === 'string') {
-      filters.status = filters.status.split(',');
-    }
-
-    if (typeof filters.transactionType === 'string') {
-      filters.transactionType = filters.transactionType.split(',');
-    }
-    // Check for optional parameter 'categories', add filter only if exist
+  async fetchAllTwits(filters) {
+    // const SEQUELIZE_QUERY_CONDITIONS =
     const searchCondition = !filters.search
       ? undefined
       : {
@@ -186,19 +185,6 @@ class DataRepo {
           { postId: { [Op.like]: `%${filters.search}%` } },
           { userId: { [Op.like]: `%${filters.search}%` } },
         ],
-      };
-
-    // Check for optional parameter 'status', add filter only if defined
-    const statusCondition = !filters.status
-      ? undefined
-      : {
-        [Op.or]: filters.status.map((value) => ({ status: value }))
-      };
-
-    const typeCondition = !filters.transactionType
-      ? undefined
-      : {
-        [Op.or]: filters.transactionType.map((value) => ({ transactionType: value }))
       };
 
     const dateRange = !filters.startDate
@@ -209,44 +195,79 @@ class DataRepo {
         }
       };
 
-    if (!filters.minAmount) filters.minAmount = 1;
-    if (!filters.maxAmount) filters.maxAmount = 999999999999999;
+    const offset = filters.page < 1 ? 1 : filters.page - 1;
+    const { limit } = filters;
 
-    const amountRange = {
-      amount: {
-        [Op.between]: [filters.minAmount, filters.maxAmount]
-      }
-    };
+    console.log(filters);
 
     const SEQUELIZE_QUERY_CONDITIONS = {
       [Op.and]: [
-        statusCondition,
         searchCondition,
-        typeCondition,
-        amountRange,
         dateRange
       ],
     };
 
-    return SEQUELIZE_QUERY_CONDITIONS;
+    return Post.findAll({
+      where: SEQUELIZE_QUERY_CONDITIONS,
+      attributes: {
+        exclude: ['updatedAt'],
+      },
+      order: filters.order.map((fieldAndOrderPair) => fieldAndOrderPair.split(':')),
+      limit: limit && typeof limit === 'number' && !Number.isNaN(limit) ? limit : undefined,
+      offset: offset * (limit || 1),
+    });
+  }
+
+  /**
+   * @param {*} postId
+   * @returns Promise
+   */
+  async deleteTwit(postId) {
+    return Post.destroy({
+      where: { uuid: postId }
+    });
   }
 
   /**
    * @param {*} filters
    * @returns Promise
    */
-  async fetchAllPosts(filters) {
-    const SEQUELIZE_QUERY_CONDITIONS = this.createQueryWithPostFilters(filters);
+  async fetchAllComments(postId, filters) {
+    // const SEQUELIZE_QUERY_CONDITIONS =
+    const searchCondition = !filters.search
+      ? undefined
+      : {
+        [Op.or]: [
+          { postId: { [Op.like]: `%${filters.search}%` } },
+          { userId: { [Op.like]: `%${filters.search}%` } },
+        ],
+      };
+
+    const dateRange = !filters.startDate
+      ? undefined
+      : {
+        createdAt: {
+          [Op.between]: [filters.startDate, filters.endDate]
+        }
+      };
 
     const offset = filters.page < 1 ? 1 : filters.page - 1;
     const { limit } = filters;
 
     console.log(filters);
 
-    return Post.findAll({
+    const SEQUELIZE_QUERY_CONDITIONS = {
+      [Op.and]: [
+        { postId },
+        searchCondition,
+        dateRange
+      ],
+    };
+
+    return Comment.findAll({
       where: SEQUELIZE_QUERY_CONDITIONS,
       attributes: {
-        exclude: ['relationType', 'id', 'updatedAt'],
+        exclude: ['updatedAt'],
       },
       order: filters.order.map((fieldAndOrderPair) => fieldAndOrderPair.split(':')),
       limit: limit && typeof limit === 'number' && !Number.isNaN(limit) ? limit : undefined,

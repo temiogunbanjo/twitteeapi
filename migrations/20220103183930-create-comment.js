@@ -7,6 +7,15 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
       },
+      postId: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: 'Post',
+          key: 'uuid',
+          as: 'postId'
+        }
+      },
       userId: {
         allowNull: false,
         type: Sequelize.UUID,
@@ -15,6 +24,14 @@ module.exports = {
           key: 'uuid',
           as: 'userId'
         }
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      comment: {
+        type: Sequelize.TEXT,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,

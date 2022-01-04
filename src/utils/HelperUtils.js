@@ -16,7 +16,8 @@ class HelperUtils {
    */
   static mapAsFilter(query) {
     const userFilters = query;
-
+    this.DEFAULT_FILTERS.endDate = new Date().toISOString();
+    
     Object.keys(userFilters).forEach((param) => {
       if (userFilters[param].includes(',')) {
         userFilters[param] = userFilters[param]

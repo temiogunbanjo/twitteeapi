@@ -25,11 +25,7 @@
       "description": "API for creating, editing, listing and deleting user records"
     },
     {
-      "name": "Admin User",
-      "description": "API for creating, editing, listing and deleting user records"
-    },
-    {
-      "name": "Wallet & Transactions",
+      "name": "Twits",
       "description": "API for creating, editing, listing and deleting user records"
     }
   ],
@@ -298,32 +294,33 @@
         }
       }
     },
-    "/transactions/create-transaction": {
+    "/twits/create-twit": {
       "post": {
-        "summary": "Create a new transaction",
-        "tags": ["Wallet & Transactions"],
+        "summary": "Create a new twit",
+        "tags": ["Twits"],
         "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "description": "Token authorization to pass with the request",
+            "required": true,
+            "type": "string"
+          },
           {
             "in": "body",
             "name": "body",
             "description": "Request object with fields to be updated",
             "required": true,
             "schema": {
-              "required": ["userId", "type", "amount", "referenceId"],
+              "required": ["image", "userId", "caption"],
               "properties": {
+                "image": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
                 "userId": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "amount": {
-                  "type": "number"
-                },
-                "narration": {
-                  "type": "string"
-                },
-                "referenceId": {
                   "type": "string"
                 }
               }
@@ -340,61 +337,15 @@
         }
       }
     },
-    "/transactions/list-transactions": {
-      "get": {
-        "summary": "Get a list of all transactions. Can also be flitered",
-        "tags": ["Wallet & Transactions"],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "page",
-            "description": "pagination parameter",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "description": "number of results displayed per page",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "transactionType",
-            "description": "number of results displayed per page",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "search",
-            "description": "search with transaction's (userId, transactionId)",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "status",
-            "description": "status parameter",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Created Successfully"
-          },
-          "500": {
-            "description": "Error that may occur due to server error"
-          }
-        }
-      }
-    },
-    "/transactions/{transactionId}": {
+    "/twits/{postId}": {
       "post": {
-        "summary": "Fetch a single transaction",
-        "tags": ["Wallet & Transactions"],
+        "summary": "Fetch a single twit",
+        "tags": ["Twits"],
         "parameters": [
           {
             "in": "path",
-            "name": "transactionId",
-            "description": "uuid of the transaction to fetch",
+            "name": "postId",
+            "description": "post uuid of the twit to fetch",
             "required": true
           },
           {
@@ -403,23 +354,7 @@
             "description": "Request object with fields to be updated",
             "required": true,
             "schema": {
-              "required": ["userId", "type", "amount", "referenceId"],
               "properties": {
-                "userId": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "amount": {
-                  "type": "number"
-                },
-                "narration": {
-                  "type": "string"
-                },
-                "referenceId": {
-                  "type": "string"
-                }
               }
             }
           }
@@ -434,45 +369,11 @@
         }
       }
     },
-    "/transactions/export": {
+    "/twits/list-twits": {
       "get": {
-        "summary": "Export all transactions as CSV",
-        "tags": ["Wallet & Transactions"],
+        "summary": "Get a list of all posts. Can also be flitered",
+        "tags": ["Twits"],
         "parameters": [
-          {
-            "in": "query",
-            "name": "startDate",
-            "description": "start date",
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "endDate",
-            "description": "end date",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Exported Successfully"
-          },
-          "500": {
-            "description": "Error that may occur due to server error"
-          }
-        }
-      }
-    },
-    "/transactions/{userId}/wallet-history": {
-      "get": {
-        "summary": "Get a list of user wallet transactions",
-        "tags": ["Wallet & Transactions"],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "userId",
-            "description": "user uuid string",
-            "required": true
-          },
           {
             "in": "query",
             "name": "page",
@@ -487,20 +388,8 @@
           },
           {
             "in": "query",
-            "name": "transactionType",
-            "description": "number of results displayed per page",
-            "required": false
-          },
-          {
-            "in": "query",
             "name": "search",
             "description": "search with transaction's (userId, transactionId)",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "status",
-            "description": "status parameter",
             "required": false
           }
         ],
@@ -514,21 +403,22 @@
         }
       }
     },
-    "/transactions/{userId}/wallet-history/{transactionId}": {
+    "/twits/{postId}/like": {
       "post": {
-        "summary": "Get details of a single transaction in wallet history",
-        "tags": ["Wallet & Transactions"],
+        "summary": "Likes a single twit",
+        "tags": ["Twits"],
         "parameters": [
           {
-            "in": "path",
-            "name": "userId",
-            "description": "Unique user uuid string",
-            "required": true
+            "in": "header",
+            "name": "authorization",
+            "description": "Token authorization to pass with the request",
+            "required": true,
+            "type": "string"
           },
           {
             "in": "path",
-            "name": "transactionId",
-            "description": "Unique transaction uuid string",
+            "name": "postId",
+            "description": "uuid of the post/twit",
             "required": true
           },
           {
@@ -537,9 +427,9 @@
             "description": "Request object with fields to be updated",
             "required": true,
             "schema": {
-              "required": ["userId"],
+              "required": ["state"],
               "properties": {
-                "userId": {
+                "state": {
                   "type": "string"
                 }
               }
@@ -548,7 +438,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Created Successfully"
+            "description": "Deleted Successfully"
           },
           "500": {
             "description": "Error that may occur due to server error"
@@ -556,33 +446,73 @@
         }
       }
     },
-    "/transactions/{userId}/wallet-history/export": {
-      "get": {
-        "summary": "Export wallet history as CSV",
-        "tags": ["Wallet & Transactions"],
+    "/twits/{postId}/delete-twit": {
+      "delete": {
+        "summary": "Delete a single twit",
+        "tags": ["Twits"],
         "parameters": [
           {
-            "in": "path",
-            "name": "userId",
-            "description": "Unique user uuid string",
-            "required": true
+            "in": "header",
+            "name": "authorization",
+            "description": "Token authorization to pass with the request",
+            "required": true,
+            "type": "string"
           },
           {
-            "in": "query",
-            "name": "startDate",
-            "description": "Unique transaction uuid string",
-            "required": true
-          },
-          {
-            "in": "query",
-            "name": "endDate",
-            "description": "Unique transaction uuid string",
-            "required": true
+            "in": "body",
+            "name": "body",
+            "description": "Request object with fields to be updated",
+            "required": true,
+            "schema": {
+              "required": ["postId"],
+              "properties": {
+                "postId": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Created Successfully"
+            "description": "Deleted Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
+    "/twits/delete-twit": {
+      "delete": {
+        "summary": "Delete a single twit",
+        "tags": ["Twits"],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "description": "Token authorization to pass with the request",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Request object with fields to be updated",
+            "required": true,
+            "schema": {
+              "required": ["postId"],
+              "properties": {
+                "postId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully"
           },
           "500": {
             "description": "Error that may occur due to server error"
@@ -602,29 +532,6 @@
           "type": "string"
         },
         "confirmPassword": {
-          "type": "string"
-        }
-      }
-    },
-    "Admin": {
-      "required": ["firstname", "lastname", "email", "role", "password", "confirmPassword"],
-      "properties": {
-        "firstname": {
-          "type": "string"
-        },
-        "lastname": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "confirmPassword": {
-          "type": "string"
-        },
-        "role": {
           "type": "string"
         }
       }

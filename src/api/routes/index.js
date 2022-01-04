@@ -1,6 +1,7 @@
 import express from 'express';
 import ApiRepo from '../ApiRepo';
 import Validator from '../middlewares/validatorMiddleWare';
+import authmid from '../middlewares/authMid';
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.get('/get-logs', repo.getLogs);
 router.post(
   '/auth/signup',
   Validator.validateSignUp,
+  Validator.validateRequest,
   repo.createUser
 );
 
@@ -46,20 +48,53 @@ router.put(
 
 // POSTS ENDPOINTS
 router.post(
-  '/posts/create-post',
+  '/twits/create-twit',
+  authmid,
   Validator.selectValidation(''),
   Validator.validateRequest,
-  repo.createNewPost
+  repo.createNewTwit
 );
 
 router.post(
-  '/posts/:postId',
-  repo.fetchSinglePost
+  '/twits/:postId',
+  repo.fetchSingleTwit
+);
+
+router.delete(
+  '/twits/delete-twit',
+  authmid,
+  Validator.selectValidation('postId'),
+  Validator.validateRequest,
+  repo.deleteTwit
 );
 
 router.get(
-  '/posts/list-posts',
-  repo.fetchAllPosts
+  '/twits/list-twits',
+  repo.fetchAllTwits
+);
+
+router.post(
+  '/twits/:postId/like',
+  authmid,
+  Validator.selectValidation('userId'),
+  Validator.validateRequest,
+  repo.likeTwit
+);
+
+router.post(
+  '/twits/:postId/add-comment',
+  authmid,
+  Validator.selectValidation('userId'),
+  Validator.validateRequest,
+  repo.createNewComment
+);
+
+router.get(
+  '/twits/:postId/list-comments',
+  authmid,
+  Validator.selectValidation('userId'),
+  Validator.validateRequest,
+  repo.fetchTwitComments
 );
 
 export default router;

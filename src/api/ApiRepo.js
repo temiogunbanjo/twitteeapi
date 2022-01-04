@@ -9,7 +9,7 @@ import DataSource from '../core/data/DataSource';
 import HttpStatusCode from '../ErrorHelpers/Statuscode';
 import HelperUtils from '../utils/HelperUtils';
 import User from '../core/domain/UserModel';
-import Post from '../core/domain/PostModel';
+import Twit from '../core/domain/TwitModel';
 import Comment from '../core/domain/CommentModel';
 import { sendSuccessResponse, sendErrorResponse } from '../utils/sendResponses';
 import { createToken, verifyToken } from '../utils/tokenProcessor';
@@ -108,7 +108,7 @@ class ApiRepo {
       return sendSuccessResponse(res, HttpStatusCode.CREATED, {
         message: 'Created Successfully',
         emailVerificationLink,
-        data: {
+        payload: {
           name: user.name,
           email: user.email,
           hasVerifiedEmail: user.hasVerifiedEmail
@@ -151,7 +151,7 @@ class ApiRepo {
       }
 
       const payload = {
-        userId: user.userId,
+        userId: user.uuid,
         email: user.email,
         name: user.name,
         hasVerifiedEmail: user.hasVerifiedEmail,
@@ -160,7 +160,7 @@ class ApiRepo {
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
         message: 'Logged in successfully',
-        data: {
+        payload: {
           token: createToken(payload),
           expiresAt: new Date(Date.now() + 3600000).toLocaleTimeString(),
         },
@@ -194,7 +194,7 @@ class ApiRepo {
       }
 
       const payload = {
-        userId: user.userId,
+        userId,
         name: user.name,
         email: user.email,
         hasVerifiedEmail: user.hasVerifiedEmail,
@@ -204,7 +204,7 @@ class ApiRepo {
 
       return sendSuccessResponse(res, 200, {
         message: 'user found successfully',
-        data: payload,
+        payload,
       });
     } catch (error) {
       return next(error);
@@ -228,7 +228,7 @@ class ApiRepo {
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
         message: `Found ${users ? users.length : 0} results`,
-        data: users,
+        payload: users,
       });
     } catch (error) {
       return next(error);
@@ -372,7 +372,7 @@ class ApiRepo {
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
         message: 'token verified successfully',
-        data: payload,
+        payload,
       });
     } catch (error) {
       return next(error);
@@ -448,39 +448,34 @@ class ApiRepo {
    * @param {import('express').NextFunction} next
    * @returns Response
    */
-  async createNewPost(req, res, next) {
+  async createNewTwit(req, res, next) {
     try {
       const repo = new ApiRepo();
       const {
-        userId,
-        type,
-        amount,
-        narration,
-        referenceId,
+        image,
+        caption,
+        userId
       } = req.body;
 
-      const transaction = new Post(
-        userId,
-        type,
-        amount,
-        narration,
-        'pending',
-        referenceId,
-        true
-      );
+      const user = await repo.datasource.fetchOneUser(userId);
+      // console.log(user);
+      if (!user) {
+        return sendErrorResponse(
+          res,
+          HttpStatusCode.NOT_FOUND,
+          'user not found'
+        );
+      }
 
-      const transactionCreationResponse = await repo.datasource.createTransaction(transaction);
-      if (!transactionCreationResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'An error occured');
+      const twit = new Twit(image, caption, user.name, userId);
+      const twitCreationResponse = await repo.datasource.createTwit(twit);
+      if (!twitCreationResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'An error occured');
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
-        data: {
-          transactionId: transactionCreationResponse.transactionId,
-          userId: transaction.userId,
-          amount: transaction.amount,
-          transactionType: transaction.transactionType,
-          narration: transaction.narration,
-          status: transaction.status,
-          referenceId: transaction.referenceId,
+        message: 'Twit created successfully',
+        payload: {
+          postId: twitCreationResponse.uuid,
+          userId: twit.userId
         },
       });
     } catch (error) {
@@ -496,17 +491,17 @@ class ApiRepo {
    * @param {import('express').NextFunction} next
    * @returns Response
    */
-  async fetchSinglePost(req, res, next) {
+  async fetchSingleTwit(req, res, next) {
     try {
       const repo = new ApiRepo();
       const { postId } = req.params;
 
-      const transactionDetails = await repo.datasource.fetchSingleTransaction(
+      const twitData = await repo.datasource.fetchSingleTwit(
         postId
       );
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
-        data: transactionDetails,
+        payload: twitData,
       });
     } catch (error) {
       return next(error);
@@ -521,15 +516,15 @@ class ApiRepo {
    * @param {import('express').NextFunction} next
    * @returns Response
    */
-  async fetchAllPosts(req, res, next) {
+  async fetchAllTwits(req, res, next) {
     try {
       const repo = new ApiRepo();
       const filters = HelperUtils.mapAsFilter(req.query);
 
-      const transactions = await repo.datasource.fetchAllUserTransactions(filters);
+      const twits = await repo.datasource.fetchAllTwits(filters);
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
-        data: transactions,
+        payload: twits,
       });
     } catch (error) {
       return next(error);
@@ -537,25 +532,147 @@ class ApiRepo {
   }
 
   /**
+   *
    * @method
    * @param {Request} req
    * @param {Response} res
    * @param {import('express').NextFunction} next
    * @returns Response
    */
-  async updateATransaction(req, res, next) {
+  async deleteTwit(req, res, next) {
     try {
       const repo = new ApiRepo();
-      const { userId } = req.body;
-      const { transactionId } = req.params;
+      const { postId } = req.body;
 
-      const transactionUpdateResponse = await repo.datasource.updateTransaction(
-        userId, transactionId, {}
-      );
+      const twitData = await repo.datasource.fetchSingleTwit(postId);
+      if (!twitData) {
+        return sendErrorResponse(
+          res,
+          HttpStatusCode.NOT_FOUND,
+          'Twit not found'
+        );
+      }
 
-      // console.log(transactionUpdateResponse);
+      if (req.user.userId !== twitData.userId) {
+        return sendErrorResponse(
+          res,
+          HttpStatusCode.FORBIDDEN,
+          'Twit can only be deleted by its owner'
+        );
+      }
+
+      console.log(req.user, twitData);
+      const deleteResponse = await repo.datasource.deleteTwit(postId);
+      if (!deleteResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'could not delete twit');
+
       return sendSuccessResponse(res, HttpStatusCode.OK, {
-        data: null,
+        message: 'Twit deleted successfully',
+        payload: null
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   *
+   * @method
+   * @param {Request} req
+   * @param {Response} res
+   * @param {import('express').NextFunction} next
+   * @returns Response
+   */
+  async likeTwit(req, res, next) {
+    try {
+      const repo = new ApiRepo();
+      const { postId } = req.params;
+      const { state } = req.body;
+
+      const twitData = await repo.datasource.fetchSingleTwit(postId);
+      if (!twitData) {
+        return sendErrorResponse(
+          res,
+          HttpStatusCode.NOT_FOUND,
+          'Twit not found'
+        );
+      }
+
+      const newLikeCount = (state) ? twitData.numberOfLikes + 1 : twitData.numberOfLikes - 1;
+      const updateResponse = await repo.datasource.updateTwit(req.user.userId, postId, {
+        numberOfLikes: newLikeCount
+      });
+      if (!updateResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'could not like twit');
+
+      return sendSuccessResponse(res, HttpStatusCode.OK, {
+        message: 'Twit liked successfully',
+        payload: null
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   *
+   * @method
+   * @param {Request} req
+   * @param {Response} res
+   * @param {import('express').NextFunction} next
+   * @returns Response
+   */
+  async createNewComment(req, res, next) {
+    try {
+      const repo = new ApiRepo();
+      const {
+        image,
+        caption,
+        userId
+      } = req.body;
+
+      const user = await repo.datasource.fetchOneUser(userId);
+      // console.log(user);
+      if (!user) {
+        return sendErrorResponse(
+          res,
+          HttpStatusCode.NOT_FOUND,
+          'user not found'
+        );
+      }
+
+      const twit = new Twit(image, caption, user.name, userId);
+      const twitCreationResponse = await repo.datasource.createTwit(twit);
+      if (!twitCreationResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'An error occured');
+
+      return sendSuccessResponse(res, HttpStatusCode.OK, {
+        message: 'Twit created successfully',
+        payload: {
+          postId: twitCreationResponse.uuid,
+          userId: twit.userId
+        },
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   *
+   * @method
+   * @param {Request} req
+   * @param {Response} res
+   * @param {import('express').NextFunction} next
+   * @returns Response
+   */
+  async fetchTwitComments(req, res, next) {
+    try {
+      const repo = new ApiRepo();
+      const { postId } = req.params;
+      const filters = HelperUtils.mapAsFilter(req.query);
+
+      const comments = await repo.datasource.fetchAllComment(postId, filters);
+
+      return sendSuccessResponse(res, HttpStatusCode.OK, {
+        payload: comments,
       });
     } catch (error) {
       return next(error);

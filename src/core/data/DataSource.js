@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable import/extensions */
 import User from '../domain/UserModel.js';
-import Post from '../domain/PostModel.js';
+import Twit from '../domain/TwitModel.js';
 import DataRepo from './DataRepo.js';
 
 /**
@@ -56,11 +56,11 @@ class DataSource {
   }
 
   /**
-   * @param {*} post
+   * @param {*} twit
    */
-  async createPost(post) {
-    if (post instanceof Post) {
-      return this.datarepo.createPost(post);
+  async createTwit(twit) {
+    if (twit instanceof Twit) {
+      return this.datarepo.createTwit(twit);
     }
   }
 
@@ -69,22 +69,37 @@ class DataSource {
    * @param {*} postId uuid of the transaction to update
    * @param {*} updates fields with values to update
    */
-  async updatePost(userId, postId, updates) {
-    return this.datarepo.updatePost(userId, postId, updates);
+  async updateTwit(userId, postId, updates) {
+    return this.datarepo.updateTwit(userId, postId, updates);
   }
 
   /**
    * @param {*} postId uuid of the transaction to fetch
    */
-  async fetchSinglePost(postId) {
-    return this.datarepo.fetchSinglePost(postId);
+  async fetchSingleTwit(postId) {
+    return this.datarepo.fetchSingleTwit(postId);
   }
 
   /**
    * @param {*} filters filters to apply
    */
-  async fetchAllPosts(filters) {
-    return this.datarepo.fetchAllPosts(filters);
+  async fetchAllTwits(filters) {
+    return this.datarepo.fetchAllTwits(filters);
+  }
+
+  /**
+   * @param {*} postId Twit to delete
+   */
+  async deleteTwit(postId) {
+    return this.datarepo.deleteTwit(postId);
+  }
+
+  /**
+   * @param {*} postId uuid of the post with comment
+   * @param {*} filters filters to apply
+   */
+  async fetchAllComment(postId, filters) {
+    return this.datarepo.fetchAllComment(postId, filters);
   }
 }
 

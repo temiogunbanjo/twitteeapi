@@ -24,11 +24,13 @@ app.use(cookieParser());
 
 // CORS allow middleware
 app.use((req, res, next) => {
+  console.log('hey');
   const corsWhitelist = [
     'http://localhost:3000',
     'http://localhost:8000',
     'https://twitteehome.netlify.app'
   ];
+  // console.log(req.headers);
   if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
     res.header('Access-Control-Allow-Origin', req.headers.origin);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');

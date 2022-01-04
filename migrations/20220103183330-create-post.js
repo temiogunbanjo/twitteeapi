@@ -7,6 +7,22 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true
       },
+      image: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      caption: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      numberOfLikes: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      posterName: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       userId: {
         allowNull: false,
         type: Sequelize.UUID,

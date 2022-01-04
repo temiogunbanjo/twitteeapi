@@ -29,6 +29,22 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: UUIDV4,
         primaryKey: true
+      },
+      image: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      caption: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      numberOfLikes: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      posterName: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
     {

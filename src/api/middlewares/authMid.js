@@ -24,14 +24,12 @@ export default async (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1]
     || req.headers.authorization || req.headers.cookie.split('=')[1];
     if (!token) return res.status(401).send({ message: 'Access Denied' });
-    const { uuid } = verifyToken(token);
 
-    // this step is not neccesary as the token will be coming from the api gateway
-    // so we may have to get the user value from the token directly
-    const { available, user } = await DbValidator.userIsAvailable(uuid);
+    const payload = verifyToken(token);
+    console.log(payload);
 
-    if (available) {
-      req.user = user;
+    if (payload) {
+      req.user = payload;
     } else {
       return sendErrorResponse(res, 401, 'Access Denied');
     }
