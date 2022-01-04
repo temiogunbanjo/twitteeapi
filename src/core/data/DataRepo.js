@@ -229,6 +229,14 @@ class DataRepo {
   }
 
   /**
+   * @param {*} comment
+   */
+  async createComment(comment) {
+    return Comment.create(comment);
+  }
+
+  /**
+   * @param {*} postId
    * @param {*} filters
    * @returns Promise
    */

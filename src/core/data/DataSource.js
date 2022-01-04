@@ -2,6 +2,7 @@
 /* eslint-disable import/extensions */
 import User from '../domain/UserModel.js';
 import Twit from '../domain/TwitModel.js';
+import Comment from '../domain/CommentModel';
 import DataRepo from './DataRepo.js';
 
 /**
@@ -92,6 +93,15 @@ class DataSource {
    */
   async deleteTwit(postId) {
     return this.datarepo.deleteTwit(postId);
+  }
+
+  /**
+   * @param {*} comment filters to apply
+   */
+  async createComment(comment) {
+    if (comment instanceof Comment) {
+      return this.datarepo.createComment(comment);
+    }
   }
 
   /**

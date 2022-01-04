@@ -624,10 +624,9 @@ class ApiRepo {
     try {
       const repo = new ApiRepo();
       const {
-        image,
-        caption,
-        userId
+        comment,
       } = req.body;
+      const { userId } = req.user;
 
       const user = await repo.datasource.fetchOneUser(userId);
       // console.log(user);
@@ -639,15 +638,15 @@ class ApiRepo {
         );
       }
 
-      const twit = new Twit(image, caption, user.name, userId);
-      const twitCreationResponse = await repo.datasource.createTwit(twit);
-      if (!twitCreationResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'An error occured');
+      const commentObject = new Comment(user.name, userId, comment);
+      const commentCreationResponse = await repo.datasource.createComment(commentObject);
+      if (!commentCreationResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'An error occured');
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
-        message: 'Twit created successfully',
+        message: 'Comment posted successfully',
         payload: {
-          postId: twitCreationResponse.uuid,
-          userId: twit.userId
+          commentId: commentCreationResponse.uuid,
+          userId: commentObject.userId
         },
       });
     } catch (error) {

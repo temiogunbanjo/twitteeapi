@@ -403,6 +403,43 @@
         }
       }
     },
+    "/twits/delete-twit": {
+      "delete": {
+        "summary": "Delete a single twit",
+        "tags": ["Twits"],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "description": "Token authorization to pass with the request",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Request object with fields to be updated",
+            "required": true,
+            "schema": {
+              "required": ["postId"],
+              "properties": {
+                "postId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully"
+          },
+          "500": {
+            "description": "Error that may occur due to server error"
+          }
+        }
+      }
+    },
     "/twits/{postId}/like": {
       "post": {
         "summary": "Likes a single twit",
@@ -438,7 +475,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted Successfully"
+            "description": "Liked Successfully"
           },
           "500": {
             "description": "Error that may occur due to server error"
@@ -446,9 +483,9 @@
         }
       }
     },
-    "/twits/{postId}/delete-twit": {
+    "/twits/{postId}/add-comment": {
       "delete": {
-        "summary": "Delete a single twit",
+        "summary": "Add comment to post/Twit",
         "tags": ["Twits"],
         "parameters": [
           {
@@ -459,14 +496,20 @@
             "type": "string"
           },
           {
+            "in": "path",
+            "name": "postId",
+            "description": "uuid of the post",
+            "required": true
+          },
+          {
             "in": "body",
             "name": "body",
             "description": "Request object with fields to be updated",
             "required": true,
             "schema": {
-              "required": ["postId"],
+              "required": ["comment"],
               "properties": {
-                "postId": {
+                "comment": {
                   "type": "string"
                 }
               }
@@ -475,7 +518,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted Successfully"
+            "description": "Posted Successfully"
           },
           "500": {
             "description": "Error that may occur due to server error"
@@ -483,36 +526,21 @@
         }
       }
     },
-    "/twits/delete-twit": {
-      "delete": {
-        "summary": "Delete a single twit",
+    "/twits/{postId}/list-comments": {
+      "get": {
+        "summary": "Get all comments for a post",
         "tags": ["Twits"],
         "parameters": [
           {
-            "in": "header",
-            "name": "authorization",
-            "description": "Token authorization to pass with the request",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Request object with fields to be updated",
-            "required": true,
-            "schema": {
-              "required": ["postId"],
-              "properties": {
-                "postId": {
-                  "type": "string"
-                }
-              }
-            }
+            "in": "path",
+            "name": "postId",
+            "description": "uuid of the post",
+            "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "Deleted Successfully"
+            "description": "Fetched Successfully"
           },
           "500": {
             "description": "Error that may occur due to server error"

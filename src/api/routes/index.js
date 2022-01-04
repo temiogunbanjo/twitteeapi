@@ -84,16 +84,11 @@ router.post(
 router.post(
   '/twits/:postId/add-comment',
   authmid,
-  Validator.selectValidation('userId'),
-  Validator.validateRequest,
   repo.createNewComment
 );
 
 router.get(
   '/twits/:postId/list-comments',
-  authmid,
-  Validator.selectValidation('userId'),
-  Validator.validateRequest,
   repo.fetchTwitComments
 );
 
