@@ -5,8 +5,7 @@
   "scripts": {
     "test": "cross-env NODE_ENV=test npm run db:migrate:test && nyc mocha 'test/**/*.js' --recursive --timeout 60000 --exit",
     "dev": "nodemon --exec npx babel-node src/bin/www.js",
-    "start": "npm run build && pm2 start build/bin/www.js -n 'lottery-api' --update-env",
-    "production": "npm run build && pm2 reload build/bin/www.js -n 'lottery-api' --update-env",
+    "start": "npm run build && node build/bin/www",
     "generate-docs": "jsdoc -c conf.json",
     "build": "babel src --out-dir build",
     "db:migrate": "npx sequelize db:migrate",
