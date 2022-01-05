@@ -2,6 +2,7 @@ import express from 'express';
 
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import cors from 'cors';
 
 import indexRouter from './api/routes/index';
 
@@ -23,21 +24,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // CORS allow middleware
-app.use((req, res, next) => {
-  console.log('hey');
-  const corsWhitelist = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-    'https://twitteehome.netlify.app'
-  ];
-  // console.log(req.headers);
-  if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  }
+app.use(cors({
+  origin: process.env.FRONTEND_BASE_URL,
+  credentials: true
+}));
 
-  next();
-});
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/v1', indexRouter);
