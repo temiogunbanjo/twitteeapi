@@ -587,8 +587,10 @@ class ApiRepo {
       const repo = new ApiRepo();
       const { postId } = req.params;
       const { state } = req.body;
+      console.log(postId, state);
 
       const twitData = await repo.datasource.fetchSingleTwit(postId);
+      console.log(twitData);
       if (!twitData) {
         return sendErrorResponse(
           res,
@@ -623,9 +625,8 @@ class ApiRepo {
   async createNewComment(req, res, next) {
     try {
       const repo = new ApiRepo();
-      const {
-        comment,
-      } = req.body;
+      const { postId } = req.params;
+      const { comment } = req.body;
       const { userId } = req.user;
 
       const user = await repo.datasource.fetchOneUser(userId);
@@ -638,7 +639,7 @@ class ApiRepo {
         );
       }
 
-      const commentObject = new Comment(user.name, userId, comment);
+      const commentObject = new Comment(user.name, userId, postId, comment);
       const commentCreationResponse = await repo.datasource.createComment(commentObject);
       if (!commentCreationResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'An error occured');
 

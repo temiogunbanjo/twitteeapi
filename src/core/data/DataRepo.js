@@ -240,7 +240,7 @@ class DataRepo {
    * @param {*} filters
    * @returns Promise
    */
-  async fetchAllComments(postId, filters) {
+  async fetchAllComment(postId, filters) {
     // const SEQUELIZE_QUERY_CONDITIONS =
     const searchCondition = !filters.search
       ? undefined
@@ -251,24 +251,15 @@ class DataRepo {
         ],
       };
 
-    const dateRange = !filters.startDate
-      ? undefined
-      : {
-        createdAt: {
-          [Op.between]: [filters.startDate, filters.endDate]
-        }
-      };
-
     const offset = filters.page < 1 ? 1 : filters.page - 1;
     const { limit } = filters;
 
-    console.log(filters);
+    // console.log(filters);
 
     const SEQUELIZE_QUERY_CONDITIONS = {
       [Op.and]: [
         { postId },
         searchCondition,
-        dateRange
       ],
     };
 

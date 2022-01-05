@@ -26,7 +26,7 @@ export default async (req, res, next) => {
     if (!token) return res.status(401).send({ message: 'Access Denied' });
 
     const payload = verifyToken(token);
-    console.log(payload);
+    // console.log(payload);
 
     if (payload) {
       req.user = payload;

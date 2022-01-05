@@ -467,7 +467,7 @@
               "required": ["state"],
               "properties": {
                 "state": {
-                  "type": "string"
+                  "type": "boolean"
                 }
               }
             }
@@ -484,7 +484,7 @@
       }
     },
     "/twits/{postId}/add-comment": {
-      "delete": {
+      "post": {
         "summary": "Add comment to post/Twit",
         "tags": ["Twits"],
         "parameters": [

@@ -76,8 +76,6 @@ router.get(
 router.post(
   '/twits/:postId/like',
   authmid,
-  Validator.selectValidation('userId'),
-  Validator.validateRequest,
   repo.likeTwit
 );
 
