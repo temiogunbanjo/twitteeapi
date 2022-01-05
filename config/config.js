@@ -20,7 +20,10 @@ module.exports = {
     dialect: 'mysql',
     logging: false,
     dialectOptions: {
-      ssl: true,
+      ssl: {
+        require: true,
+        // rejectUnauthorized: false,
+      }
     },
   },
   production: {
@@ -28,7 +31,10 @@ module.exports = {
     dialect: 'mysql',
     logging: false,
     dialectOptions: {
-      ssl: true,
+      ssl: {
+        require: true,
+        // rejectUnauthorized: false,
+      }
     },
   },
 };
