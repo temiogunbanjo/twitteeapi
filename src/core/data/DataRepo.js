@@ -147,8 +147,9 @@ class DataRepo {
    * @param {*} updates
    */
   async updateTwit(userId, postId, updates) {
+    console.log(userId, postId, updates);
     return Post.update(updates, {
-      where: { userId, uuid: postId },
+      where: { uuid: postId },
       returning: true,
     });
   }

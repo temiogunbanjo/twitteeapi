@@ -587,10 +587,9 @@ class ApiRepo {
       const repo = new ApiRepo();
       const { postId } = req.params;
       const { state } = req.body;
-      console.log(postId, state);
+      // console.log(postId, state);
 
       const twitData = await repo.datasource.fetchSingleTwit(postId);
-      console.log(twitData);
       if (!twitData) {
         return sendErrorResponse(
           res,
@@ -601,13 +600,16 @@ class ApiRepo {
 
       const newLikeCount = (state) ? twitData.numberOfLikes + 1 : twitData.numberOfLikes - 1;
       const updateResponse = await repo.datasource.updateTwit(req.user.userId, postId, {
-        numberOfLikes: newLikeCount
+        numberOfLikes: (newLikeCount < 0) ? 0 : newLikeCount
       });
       if (!updateResponse) return sendErrorResponse(res, HttpStatusCode.INTERNAL_SERVER, 'could not like twit');
 
       return sendSuccessResponse(res, HttpStatusCode.OK, {
-        message: 'Twit liked successfully',
-        payload: null
+        message: `Twit ${(!state) ? 'unliked' : 'liked'} successfully`,
+        payload: {
+          postId,
+          numberOfLikes: newLikeCount
+        }
       });
     } catch (error) {
       return next(error);

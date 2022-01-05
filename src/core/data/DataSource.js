@@ -67,7 +67,7 @@ class DataSource {
 
   /**
    * @param {*} userId userId of user to update
-   * @param {*} postId uuid of the transaction to update
+   * @param {*} postId uuid of the post/twit to update
    * @param {*} updates fields with values to update
    */
   async updateTwit(userId, postId, updates) {
