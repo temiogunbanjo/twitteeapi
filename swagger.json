@@ -28,7 +28,7 @@
       "description": "API for creating, editing, listing and deleting user records"
     }
   ],
-  "schemes": ["http"],
+  "schemes": ["https", "http"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "paths": {
